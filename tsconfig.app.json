@@ -8,14 +8,9 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Adicione estas linhas abaixo */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
 
-    /* ... resto das configurações padrão ... */
     "moduleResolution": "bundler",
+
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
