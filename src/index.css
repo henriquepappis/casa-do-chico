@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@layer components {
+  .btn-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #C0392B;
+    color: #fff;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+    box-shadow: 0 4px 14px rgba(192, 57, 43, 0.35);
+    cursor: pointer;
+    border: none;
+    outline: none;
+
+    &:hover {
+      background: #a93226;
+      box-shadow: 0 6px 18px rgba(192, 57, 43, 0.45);
+    }
+
+    &:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 8px rgba(192, 57, 43, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+}
+
+/* Configurações de Tema do Tailwind v4 usando as variáveis do Manus */
+@theme {
+  --color-brand-text: var(--text);
+  --color-brand-heading: var(--text-h);
+  --color-brand-bg: var(--bg);
+  --color-brand-border: var(--border);
+  --color-brand-accent: var(--accent);
+}
+
+:root {
+  /* Variáveis originais do Manus AI */
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+/* Ajuste do container para simular o celular centralizado no desktop */
+#root {
+  width: 100%;
+  max-width: 480px; /* Força o comportamento mobile mesmo abrindo no PC */
+  margin: 0 auto;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  background-color: #f3f4f6; /* Um fundo cinza claro no PC para destacar o "celular" no meio */
+}
+
+/* Estilos de tipografia globais do Manus */
+h1, h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 36px;
+  letter-spacing: -1.68px;
+  margin: 20px 0;
+}
+
+h2 {
+  font-size: 20px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+}
+
+p {
+  margin: 0;
+}
+
+code, .counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
