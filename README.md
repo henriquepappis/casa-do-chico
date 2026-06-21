@@ -1,73 +1,111 @@
-# React + TypeScript + Vite
+# 🍺 Casa do Chico — Cardápio Digital
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação mobile-first de cardápio digital para o bar & restaurante **Casa do Chico**. Projetada para ser acessada via QR code na mesa, permitindo que o cliente navegue pelo cardápio, monte o pedido e acompanhe o consumo da mesa — tudo sem precisar chamar o garçom para anotar.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Funcionalidades
 
-## React Compiler
+- **Identificação por mesa** — cliente informa o nome ao escanear o QR da mesa
+- **Cardápio por categoria** — Bebidas, Petiscos, Refeições e Sobremesas
+- **Carrinho interativo** — controle de quantidade (`− qty +`), observações por item e resumo do pedido
+- **Envio para a cozinha** — pedido confirmado com um toque
+- **Minha Conta** — histórico de tudo que foi pedido na mesa com status em tempo real (Preparando / Pronto / Entregue)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Camada | Tecnologia |
+|---|---|
+| Framework | [React 19](https://react.dev/) |
+| Linguagem | TypeScript |
+| Build | [Vite](https://vite.dev/) |
+| Estilo | [Tailwind CSS v4](https://tailwindcss.com/) |
+| Ícones | [Lucide React](https://lucide.dev/) |
+| Toasts | [Sonner](https://sonner.emilkowal.ski/) |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+> Estado 100% client-side via React Context. Sem backend ou banco de dados por enquanto.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Pré-requisitos
+
+- Node.js 18+
+- npm 9+
+
+---
+
+## Como rodar localmente
+
+```bash
+# 1. Clone o repositório
+git clone git@github.com:henriquepappis/casa-do-chico-front.git
+cd casa-do-chico-front
+
+# 2. Instale as dependências
+npm install
+
+# 3. Inicie o servidor de desenvolvimento
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Acesse [http://localhost:5173](http://localhost:5173) no navegador.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts disponíveis
+
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento com HMR |
+| `npm run build` | Build de produção (`dist/`) |
+| `npm run preview` | Preview do build de produção |
+| `npm run lint` | Lint com ESLint |
+
+---
+
+## Estrutura do projeto
+
 ```
+src/
+├── AppContext.tsx     # Estado global (Context API) — carrinho, pedidos, navegação
+├── App.tsx            # Roteamento de telas via estado
+├── LoginScreen.tsx    # Tela 1 — Identificação do cliente na mesa
+├── MenuScreen.tsx     # Tela 2 — Cardápio com categorias e controles de quantidade
+├── CartScreen.tsx     # Tela 3 — Revisão e envio do pedido
+└── ReceiptScreen.tsx  # Tela 4 — Minha Conta / histórico da mesa
+```
+
+---
+
+## Design
+
+Estilo **rústico nordestino**, pensado para funcionar bem em dispositivos móveis.
+
+| Token | Valor |
+|---|---|
+| Vermelho principal | `#C0392B` |
+| Marrom escuro | `#3D0C0C` |
+| Creme de fundo | `#FDF6EC` |
+| Marrom médio | `#7B3F2A` |
+| Fonte de título | Playfair Display |
+| Fonte de texto | Lato |
+
+A viewport máxima é **480px**, simulando um celular centralizado no desktop.
+
+---
+
+## Roadmap
+
+- [ ] Integração com backend / API REST
+- [ ] Status dos pedidos em tempo real (WebSocket)
+- [ ] QR code dinâmico por mesa
+- [ ] Painel administrativo para a cozinha
+- [ ] Persistência de sessão por mesa
+
+---
+
+## Licença
+
+Projeto privado — todos os direitos reservados a **Casa do Chico Bar & Restaurante**.
