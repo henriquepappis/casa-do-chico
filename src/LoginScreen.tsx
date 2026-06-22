@@ -143,8 +143,8 @@ export default function LoginScreen() {
               )}
             </div>
 
-            <p className="text-xs mt-6 mb-8 text-center" style={{ color: "#7B3F2A", opacity: 0.7 }}>
-              Seu nome aparecerá nos pedidos enviados à cozinha
+            <p className="text-xs text-center" style={{ color: "#7B3F2A", opacity: 0.7, marginTop: "0.5rem", marginBottom: "0.5rem" }}>
+              Seu nome aparecerá nos pedidos enviados à cozinha.
             </p>
 
             <button

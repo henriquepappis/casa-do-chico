@@ -3,7 +3,7 @@
  * Gerencia: identificação da mesa, nome do cliente, carrinho e pedidos enviados
  */
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
 export interface MenuItem {
   id: string;
@@ -60,6 +60,41 @@ interface AppContextType extends AppState {
 const AppContext = createContext<AppContextType | null>(null);
 
 const TABLE_NUMBER = 5; // Mesa padrão para testes locais
+const STORAGE_KEY = "casa-do-chico-session";
+const NAME_KEY    = "casa-do-chico-name";
+
+function loadSession(): Partial<AppState> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (parsed.orders) {
+      parsed.orders = parsed.orders.map((o: OrderItem) => ({
+        ...o,
+        sentAt: new Date(o.sentAt),
+      }));
+    }
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function saveSession(state: AppState) {
+  try {
+    const { cartBounce, ...toSave } = state;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    // Nome salvo separadamente para sobreviver a logouts e trocas de mesa
+    if (state.customerName) {
+      localStorage.setItem(NAME_KEY, state.customerName);
+    }
+  } catch {}
+}
+
+function loadSavedName(): string {
+  try { return localStorage.getItem(NAME_KEY) ?? ""; }
+  catch { return ""; }
+}
 
 export const MENU_ITEMS: MenuItem[] = [
   // ── BEBIDAS ──
@@ -141,7 +176,7 @@ export const MENU_ITEMS: MenuItem[] = [
     price: 28.0,
     category: "petiscos",
     image:
-      "https://images.unsplash.com/photo-1585325701165-351af916e5ec?w=400&q=80",
+      "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80",
   },
 
   // ── REFEIÇÕES ──
@@ -203,16 +238,32 @@ export const MENU_ITEMS: MenuItem[] = [
 ];
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AppState>({
-    tableNumber: TABLE_NUMBER,
-    customerName: "",
-    isLoggedIn: false,
-    cart: [],
-    orders: [],
-    screen: "login", // Inicializa fixo em 'login' para travar o fluxo inicial correto
-    activeCategory: "bebidas",
-    cartBounce: false,
+  const [state, setState] = useState<AppState>(() => {
+    const saved = loadSession();
+    const savedName = loadSavedName();
+    const nameToUse = saved.customerName || savedName;
+    return {
+      tableNumber: TABLE_NUMBER,
+      customerName: "",
+      isLoggedIn: false,
+      cart: [],
+      orders: [],
+      screen: "login",
+      activeCategory: "bebidas",
+      cartBounce: false,
+      ...saved,
+      // Se há nome salvo, entra direto no menu independente do estado anterior
+      ...(nameToUse && !saved.isLoggedIn ? {
+        customerName: nameToUse,
+        isLoggedIn: true,
+        screen: "menu" as const,
+      } : {}),
+    };
   });
+
+  useEffect(() => {
+    saveSession(state);
+  }, [state]);
 
   const login = useCallback((name: string) => {
     setState((s) => ({
@@ -224,6 +275,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    // Limpa a sessão mas mantém o nome salvo para próxima visita
+    localStorage.removeItem(STORAGE_KEY);
     setState((s) => ({
       ...s,
       customerName: "",

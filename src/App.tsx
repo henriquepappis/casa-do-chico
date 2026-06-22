@@ -4,6 +4,7 @@ import LoginScreen from "./LoginScreen";
 import MenuScreen from "./MenuScreen";
 import CartScreen from "./CartScreen";
 import ReceiptScreen from "./ReceiptScreen";
+import OfflineBanner from "./OfflineBanner";
 
 // Componente interno isolado para escutar o contexto e chavear as telas
 function ScreenRouter() {
@@ -26,8 +27,8 @@ function ScreenRouter() {
 function App() {
   return (
     <AppProvider>
+      <OfflineBanner />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
-        {/* Renderiza as telas dinamicamente de acordo com o estado global */}
         <ScreenRouter />
       </div>
     </AppProvider>

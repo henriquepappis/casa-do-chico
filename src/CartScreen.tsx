@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { ArrowLeft, ShoppingCart, Trash2, MessageSquare, ChefHat } from "lucide-react";
 import { useApp } from "./AppContext";
+import LazyImage from "./LazyImage";
 
 function formatPrice(price: number) {
   return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -137,11 +138,7 @@ export default function CartScreen() {
             <div className="flex gap-3 p-3">
               {/* Image */}
               <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src={cartItem.item.image}
-                  alt={cartItem.item.name}
-                  className="w-full h-full object-cover"
-                />
+                <LazyImage src={cartItem.item.image} alt={cartItem.item.name} className="w-full h-full object-cover" />
               </div>
 
               {/* Info */}

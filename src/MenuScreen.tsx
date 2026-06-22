@@ -8,13 +8,14 @@ import { useRef, useEffect } from "react";
 import { ShoppingCart, MapPin, ChevronRight, ArrowLeft, Receipt } from "lucide-react";
 // Alterado para buscar da mesma pasta (raiz de src)
 import { useApp, MENU_ITEMS, type MenuItem } from "./AppContext";
+import LazyImage from "./LazyImage";
 
 const CATEGORIES: { id: MenuItem["category"]; label: string; emoji: string }[] =
   [
-    { id: "bebidas", label: "Bebidas", emoji: "🍺" },
-    { id: "petiscos", label: "Petiscos", emoji: "🍟" },
-    { id: "refeicoes", label: "Refeições", emoji: "🍲" },
-    { id: "sobremesas", label: "Sobremesas", emoji: "🍰" },
+    { id: "bebidas", label: " Bebidas", emoji: "🍺" },
+    { id: "petiscos", label: " Petiscos", emoji: "🍟" },
+    { id: "refeicoes", label: " Refeições", emoji: "🍲" },
+    { id: "sobremesas", label: " Sobremesas", emoji: "🍰" },
   ];
 
 function formatPrice(price: number) {
@@ -52,6 +53,54 @@ export default function MenuScreen() {
       });
     }
   }, [activeCategory]);
+
+  // Mouse wheel + drag-to-scroll on category bar
+  useEffect(() => {
+    const bar = categoryBarRef.current;
+    if (!bar) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      bar.scrollBy({ left: e.deltaY, behavior: "smooth" });
+    };
+
+    let isDragging = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    const onMouseDown = (e: MouseEvent) => {
+      isDragging = true;
+      startX = e.pageX - bar.offsetLeft;
+      scrollLeft = bar.scrollLeft;
+      bar.style.cursor = "grabbing";
+      bar.style.userSelect = "none";
+    };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const x = e.pageX - bar.offsetLeft;
+      bar.scrollLeft = scrollLeft - (x - startX);
+    };
+    const onMouseUp = () => {
+      isDragging = false;
+      bar.style.cursor = "grab";
+      bar.style.userSelect = "";
+    };
+
+    bar.style.cursor = "grab";
+    bar.addEventListener("wheel", onWheel, { passive: false });
+    bar.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      bar.removeEventListener("wheel", onWheel);
+      bar.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, []);
 
   return (
     <div
@@ -219,12 +268,7 @@ export default function MenuScreen() {
               <div className="flex gap-0">
                 {/* Product image */}
                 <div className="relative w-28 h-28 flex-shrink-0">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  <LazyImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   {item.badge && (
                     <span
                       className="absolute top-1.5 left-1.5 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full"

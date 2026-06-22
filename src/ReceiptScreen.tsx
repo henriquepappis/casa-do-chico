@@ -5,6 +5,7 @@
  */
 
 import { ArrowLeft, Receipt, Clock, CheckCircle, Package, MapPin, Plus } from "lucide-react";
+import LazyImage from "./LazyImage";
 import { useApp } from "./AppContext";
 
 function formatPrice(price: number) {
@@ -134,11 +135,7 @@ export default function ReceiptScreen() {
                   <div className="flex gap-3 p-3">
                     {/* Image */}
                     <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
-                      <img
-                        src={order.item.image}
-                        alt={order.item.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <LazyImage src={order.item.image} alt={order.item.name} className="w-full h-full object-cover" />
                     </div>
 
                     {/* Info */}
