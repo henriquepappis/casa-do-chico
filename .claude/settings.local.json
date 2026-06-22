@@ -7,7 +7,10 @@
       "Bash(git commit -m ' *)",
       "Bash(npm run *)",
       "Bash(npm audit *)",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); vulns=d.get\\('vulnerabilities',{}\\); [print\\(k, v['severity'], v.get\\('via',''\\)\\) for k,v in vulns.items\\(\\)]\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); vulns=d.get\\('vulnerabilities',{}\\); [print\\(k, v['severity'], v.get\\('via',''\\)\\) for k,v in vulns.items\\(\\)]\")",
+      "Bash(git mv *)",
+      "Bash(python3 -c ' *)",
+      "Bash(mv /tmp/pkg.json package.json)"
     ]
   }
 }
