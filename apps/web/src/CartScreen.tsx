@@ -24,19 +24,18 @@ export default function CartScreen() {
     removeFromCart,
     updateObservation,
     sendOrder,
+    sendingOrder,
     setScreen,
   } = useApp();
 
   const [expandedObs, setExpandedObs] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
 
-  const handleSend = () => {
-    if (cart.length === 0) return;
+  const handleSend = async () => {
+    if (cart.length === 0 || sendingOrder) return;
     setConfirming(true);
-    setTimeout(() => {
-      sendOrder();
-      setConfirming(false);
-    }, 1200);
+    await sendOrder();
+    setConfirming(false);
   };
 
   if (cart.length === 0 && !confirming) {
@@ -76,7 +75,7 @@ export default function CartScreen() {
           >
             Carrinho vazio
           </h2>
-          <p className="text-sm mt-4 mb-12" style={{ color: "#7B3F2A" }}>
+          <p className="text-xs text-center" style={{ color: "#7B3F2A", opacity: 0.7, marginTop: "0.5rem", marginBottom: "0.5rem" }}>
             Adicione itens do cardápio para fazer seu pedido
           </p>
           <button
@@ -288,7 +287,7 @@ export default function CartScreen() {
       >
         <button
           onClick={handleSend}
-          disabled={confirming || cart.length === 0}
+          disabled={confirming || sendingOrder || cart.length === 0}
           className="btn-brand w-full py-4 rounded-xl flex items-center justify-center gap-2.5 text-base font-bold disabled:opacity-70"
           style={{ fontFamily: "'Lato', sans-serif" }}
         >

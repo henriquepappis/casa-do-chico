@@ -7,7 +7,7 @@
 import { useRef, useEffect } from "react";
 import { ShoppingCart, MapPin, ChevronRight, ArrowLeft, Receipt } from "lucide-react";
 // Alterado para buscar da mesma pasta (raiz de src)
-import { useApp, MENU_ITEMS, type MenuItem } from "./AppContext";
+import { useApp, type MenuItem } from "./AppContext";
 import LazyImage from "./LazyImage";
 
 const CATEGORIES: { id: MenuItem["category"]; label: string; emoji: string }[] =
@@ -29,6 +29,8 @@ export default function MenuScreen() {
     cart,
     cartCount,
     cartBounce,
+    menuItems,
+    menuLoading,
     addToCart,
     updateQuantity,
     logout,
@@ -38,7 +40,7 @@ export default function MenuScreen() {
   } = useApp();
   const categoryBarRef = useRef<HTMLDivElement>(null);
 
-  const filteredItems = MENU_ITEMS.filter((i) => i.category === activeCategory);
+  const filteredItems = menuItems.filter((i) => i.category === activeCategory);
 
   // Scroll active category pill into view
   useEffect(() => {
@@ -256,7 +258,16 @@ export default function MenuScreen() {
 
       {/* ── Product list ── */}
       <div className="flex-1 px-4 py-4 pb-24 space-y-3">
-        {filteredItems.map((item, idx) => {
+        {menuLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <p className="text-sm" style={{ color: "#7B3F2A", opacity: 0.6 }}>Carregando cardápio...</p>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="flex items-center justify-center h-48">
+            <p className="text-sm" style={{ color: "#7B3F2A", opacity: 0.6 }}>Nenhum item disponível.</p>
+          </div>
+        ) : null}
+        {!menuLoading && filteredItems.map((item, idx) => {
           const inCart = cart.find((c) => c.item.id === item.id);
 
           return (
