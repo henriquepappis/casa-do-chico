@@ -42,7 +42,23 @@
       "Bash(unzip -o \"/Users/henrique/Downloads/Painel Administrativo Dark para Restaurante Casa do Chico.zip\" -d manus_admin)",
       "Bash(curl -s \"http://localhost:5174/src/index.css\" -o /tmp/served.css)",
       "Bash(kill 47260)",
-      "Bash(echo \"=== admin tsc exit: $? ===\")"
+      "Bash(echo \"=== admin tsc exit: $? ===\")",
+      "Bash(git commit *)",
+      "Bash(curl -s -m 90 https://casa-do-chico-api.onrender.com/health)",
+      "Bash(curl -s -m 90 -o /dev/null -w \"%{http_code}\\\\n\" -X POST https://casa-do-chico-api.onrender.com/auth/login -H \"Content-Type: application/json\" -d '{}')",
+      "Bash(curl -s -m 90 -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST https://casa-do-chico-api.onrender.com/auth/login -H \"Content-Type: application/json\" -d '{\"username\":\"naoexiste\",\"password\":\"123456\"}')",
+      "Bash(curl -s -m 90 https://casa-do-chico-api.onrender.com/cardapio)",
+      "Bash(curl -s -m 30 -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://www.henriquepappis.com)",
+      "Bash(curl -s -m 90 -D - -o /dev/null https://casa-do-chico-api.onrender.com/cardapio -H \"Origin: https://www.henriquepappis.com\")",
+      "Bash(npx --yes wrangler whoami)",
+      "Bash(VITE_API_URL=https://casa-do-chico-api.onrender.com npm run build -w apps/admin)",
+      "Bash(npx --yes wrangler pages project create casa-do-chico-admin --production-branch main)",
+      "Bash(npx --yes wrangler pages deploy apps/admin/dist --project-name casa-do-chico-admin --branch main --commit-dirty=true)",
+      "Bash(curl -s -m 30 https://casa-do-chico-admin.pages.dev)",
+      "Bash(curl -s -m 30 -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://casa-do-chico-admin.pages.dev)",
+      "Bash(curl -s -m 90 -D - -o /dev/null https://casa-do-chico-api.onrender.com/cardapio -H \"Origin: https://casa-do-chico-admin.pages.dev\")",
+      "Bash(node -e \"const b=require\\('bcrypt'\\); b.hash\\('MinhaSenha123',10\\).then\\(h=>console.log\\(h\\)\\)\")",
+      "Bash(git rm *)"
     ]
   }
 }

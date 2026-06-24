@@ -11,9 +11,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "db:seed": "tsx src/seed.ts",
-    "db:set-senha": "tsx src/set-senha.ts",
-    "db:seed-cardapio": "tsx src/seed-cardapio.ts"
+    "db:set-senha": "tsx src/set-senha.ts"
   },
   "dependencies": {
     "@casa-do-chico/types": "*",

@@ -17,13 +17,14 @@ import { api } from "../lib/api";
 import type { User } from "../lib/api";
 import { getUser } from "../lib/auth";
 import NovoUsuarioModal from "../components/NovoUsuarioModal";
+import type { NavItem } from "../App";
 
 export default function UsuariosPage({
   onLogout,
   onNavigate,
 }: {
   onLogout: () => void;
-  onNavigate: (item: "mesas" | "usuarios") => void;
+  onNavigate: (item: NavItem) => void;
 }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);

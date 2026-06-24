@@ -7,6 +7,7 @@ import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Order } from '../lib/api';
 import { useWebSocket } from '../lib/useWebSocket';
+import type { NavItem } from '../App';
 
 interface SessionData {
   sessaoId: string;
@@ -36,7 +37,7 @@ export default function MesaDetailPage({
   onBack: () => void;
   onLogout: () => void;
   onMesaChanged: () => void;
-  onNavigate: (item: "mesas" | "usuarios") => void;
+  onNavigate: (item: NavItem) => void;
 }) {
   const [data, setData] = useState<SessionData | null>(null);
   const [loading, setLoading] = useState(true);

@@ -4,10 +4,14 @@ import LoginPage from "./pages/LoginPage";
 import MesasPage from "./pages/MesasPage";
 import MesaDetailPage from "./pages/MesaDetailPage";
 import UsuariosPage from "./pages/UsuariosPage";
+import CardapioPage from "./pages/CardapioPage";
+
+export type NavItem = "mesas" | "cardapio" | "usuarios";
 
 type View =
   | { screen: "login" }
   | { screen: "mesas" }
+  | { screen: "cardapio" }
   | { screen: "usuarios" }
   | { screen: "mesa"; number: number };
 
@@ -22,7 +26,7 @@ export default function App() {
   }
 
   const handleLogout = () => setView({ screen: "login" });
-  const navigate = (item: "mesas" | "usuarios") => setView({ screen: item });
+  const navigate = (item: NavItem) => setView({ screen: item });
 
   if (view.screen === "mesa") {
     return (
@@ -34,6 +38,10 @@ export default function App() {
         onNavigate={navigate}
       />
     );
+  }
+
+  if (view.screen === "cardapio") {
+    return <CardapioPage onLogout={handleLogout} onNavigate={navigate} />;
   }
 
   if (view.screen === "usuarios") {

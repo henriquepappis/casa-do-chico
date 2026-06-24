@@ -9,6 +9,7 @@ import type { Mesa } from '../lib/api';
 import { getUser } from '../lib/auth';
 import { useWebSocket } from '../lib/useWebSocket';
 import NovaMesaModal from '../components/NovaMesaModal';
+import type { NavItem } from '../App';
 
 export default function MesasPage({
   onLogout,
@@ -16,7 +17,7 @@ export default function MesasPage({
   onSelectMesa,
 }: {
   onLogout: () => void;
-  onNavigate: (item: "mesas" | "usuarios") => void;
+  onNavigate: (item: NavItem) => void;
   onSelectMesa: (number: number) => void;
 }) {
   const [mesas, setMesas] = useState<Mesa[]>([]);

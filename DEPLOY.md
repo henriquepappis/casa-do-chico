@@ -48,17 +48,19 @@ roda no build). Você não precisa rodar nada manualmente no Neon.
    curl https://casa-do-chico-api.onrender.com/health   # {"status":"ok"}
    ```
 
-### Criar o primeiro usuário (dono) e o cardápio
+### Criar o primeiro usuário (dono)
 
-Os seeds rodam uma única vez, a partir da sua máquina, apontando para o Neon:
+O primeiro dono precisa ser criado direto no banco (não há seed com credenciais).
+A partir da sua máquina, apontando para o Neon:
 
 ```bash
-# na raiz do projeto
-DATABASE_URL="<URL_DO_NEON>" npm run db:seed -w @casa-do-chico/api -- dono "SUA_SENHA_FORTE"
-DATABASE_URL="<URL_DO_NEON>" npm run db:seed-cardapio -w @casa-do-chico/api
+# na raiz do projeto — cria o dono se não existir, ou redefine a senha se já existir
+DATABASE_URL="<URL_DO_NEON>" npm run db:set-senha -w @casa-do-chico/api -- dono "SUA_SENHA_FORTE"
 ```
 
-Depois disso, novos usuários você cria pelo próprio painel admin (menu **Usuários**).
+Depois disso, **tudo é gerenciado pelo painel**: novos usuários em **Usuários** e o
+menu em **Cardápio** (criar/editar/ocultar/remover itens). Use o `db:set-senha`
+apenas como recuperação, caso o dono fique trancado fora.
 
 ---
 

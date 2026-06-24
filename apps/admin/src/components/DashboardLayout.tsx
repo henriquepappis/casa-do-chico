@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { getUser, clearAuth } from '../lib/auth';
 
-type NavItem = "mesas" | "usuarios";
+type NavItem = "mesas" | "cardapio" | "usuarios";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -25,6 +25,7 @@ export default function DashboardLayout({ children, onLogout, current = "mesas",
 
   const navItems: { id: NavItem; label: string; icon: string; donoOnly?: boolean }[] = [
     { id: "mesas", label: "Mesas", icon: "🪑" },
+    { id: "cardapio", label: "Cardápio", icon: "📋", donoOnly: true },
     { id: "usuarios", label: "Usuários", icon: "👥", donoOnly: true },
   ];
 

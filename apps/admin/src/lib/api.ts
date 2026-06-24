@@ -41,6 +41,32 @@ export interface Mesa {
   } | null;
 }
 
+export type MenuCategory = "bebidas" | "petiscos" | "refeicoes" | "sobremesas";
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: MenuCategory;
+  image: string;
+  badge: string | null;
+  active: boolean;
+  position: number;
+  createdAt: string;
+}
+
+export type MenuItemInput = {
+  name: string;
+  description: string;
+  price: number;
+  category: MenuCategory;
+  image: string;
+  badge: string | null;
+  position: number;
+  active: boolean;
+};
+
 export interface User {
   id: string;
   username: string;
@@ -103,4 +129,15 @@ export const api = {
 
   deletarUsuario: (id: string) =>
     request<void>(`/users/${id}`, { method: "DELETE" }),
+
+  getCardapio: () => request<MenuItem[]>("/cardapio/all"),
+
+  criarItem: (data: MenuItemInput) =>
+    request<MenuItem>("/cardapio", { method: "POST", body: JSON.stringify(data) }),
+
+  atualizarItem: (id: string, data: Partial<MenuItemInput>) =>
+    request<MenuItem>(`/cardapio/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+
+  deletarItem: (id: string) =>
+    request<void>(`/cardapio/${id}`, { method: "DELETE" }),
 };
