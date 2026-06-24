@@ -11,7 +11,10 @@ export async function request<T>(path: string, options?: RequestInit): Promise<T
     ...options,
   });
 
-  if (res.status === 401) {
+  // Só trata como "sessão expirada" quando havia token (requisição autenticada).
+  // No login não há token, então um 401 cai no tratamento abaixo e mostra
+  // a mensagem real da API ("Credenciais inválidas").
+  if (res.status === 401 && token) {
     localStorage.removeItem("admin_token");
     window.location.href = "/";
     throw new Error("Sessão expirada");
