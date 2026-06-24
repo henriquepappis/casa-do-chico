@@ -41,11 +41,12 @@ interface AppState {
   menuLoading: boolean;
   cart: CartItem[];
   orders: OrderItem[];
-  screen: "login" | "menu" | "cart" | "receipt";
+  screen: "login" | "menu" | "cart" | "receipt" | "blocked";
   activeCategory: MenuItem["category"];
   cartBounce: boolean;
   sendingOrder: boolean;
   tableError: string | null;
+  blockedTable: number | null;
 }
 
 interface AppContextType extends AppState {
@@ -115,6 +116,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       cartBounce: false,
       sendingOrder: false,
       tableError: tableNumber === 0 ? "Número de mesa inválido. Use o QR Code da mesa." : null,
+      blockedTable: null,
     };
   });
 
@@ -125,16 +127,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .catch(() => setState((s) => ({ ...s, menuLoading: false })));
   }, []);
 
-  // Restaura sessão ativa: valida mesa + busca histórico de pedidos da API
+  // Bloqueia mesa diferente da comanda aberta + restaura sessão ativa
   useEffect(() => {
     const tableNumber = getTableNumberFromUrl();
     if (!tableNumber) return;
     const clientId = localStorage.getItem(CLIENT_ID_KEY);
-    const name = loadSavedName();
-    if (!clientId || !name) return;
+    if (!clientId) return;
 
-    api.getMesa(tableNumber).then(async (mesa) => {
-      if (mesa.status !== "OCUPADA") return;
+    let cancelled = false;
+    (async () => {
+      // 1) Se o cliente já tem comanda aberta em OUTRA mesa, bloqueia o acesso
+      try {
+        const comanda = await api.getComanda(clientId);
+        if (cancelled) return;
+        if (comanda.tableNumber && comanda.tableNumber !== tableNumber) {
+          setState((s) => ({ ...s, screen: "blocked", blockedTable: comanda.tableNumber }));
+          return;
+        }
+      } catch { /* segue para restauração */ }
+
+      // 2) Restaura a sessão desta mesa (só se houver nome salvo)
+      const name = loadSavedName();
+      if (!name) return;
+
+      const mesa = await api.getMesa(tableNumber).catch(() => null);
+      if (cancelled || !mesa || mesa.status === "INATIVA") return;
 
       const [backendOrders, menuItems] = await Promise.all([
         api.getMeusOrders(tableNumber, clientId).catch(() => [] as BackendOrder[]),
@@ -161,8 +178,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }))
       );
 
+      if (cancelled) return;
       setState((s) => ({ ...s, customerName: name, isLoggedIn: true, screen: "menu", orders: restoredOrders, menuItems: menuItems.length ? menuItems : s.menuItems }));
-    }).catch(() => {});
+    })();
+
+    return () => { cancelled = true; };
   }, []);
 
   // Persiste apenas nome e carrinho

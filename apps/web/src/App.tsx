@@ -4,6 +4,7 @@ import LoginScreen from "./LoginScreen";
 import MenuScreen from "./MenuScreen";
 import CartScreen from "./CartScreen";
 import ReceiptScreen from "./ReceiptScreen";
+import BlockedScreen from "./BlockedScreen";
 import OfflineBanner from "./OfflineBanner";
 
 // Componente interno isolado para escutar o contexto e chavear as telas
@@ -19,6 +20,8 @@ function ScreenRouter() {
       return <CartScreen />;
     case "receipt":
       return <ReceiptScreen />;
+    case "blocked":
+      return <BlockedScreen />;
     default:
       return <LoginScreen />;
   }

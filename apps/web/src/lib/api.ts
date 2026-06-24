@@ -59,6 +59,9 @@ export const api = {
   getMesa: (number: number) =>
     request<{ id: number; number: number; status: string; sessao: unknown }>(`/mesas/${number}`),
 
+  getComanda: (clientId: string) =>
+    request<{ tableNumber: number | null }>(`/clientes/${encodeURIComponent(clientId)}/comanda`),
+
   getMeusOrders: (tableNumber: number, clientId: string) =>
     request<BackendOrder[]>(`/mesas/${tableNumber}/meus-pedidos?clientId=${encodeURIComponent(clientId)}`),
 

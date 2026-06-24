@@ -7,6 +7,7 @@ import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Order } from '../lib/api';
 import { useWebSocket } from '../lib/useWebSocket';
+import TransferirMesaModal from '../components/TransferirMesaModal';
 import type { NavItem } from '../App';
 
 interface SessionData {
@@ -44,6 +45,7 @@ export default function MesaDetailPage({
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState<'abrir' | 'fechar' | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -141,9 +143,12 @@ export default function MesaDetailPage({
               🟢
             </div>
             <h2 className="mb-2 text-foreground" style={{ fontSize: '1.75rem' }}>Mesa livre</h2>
-            <p className="text-sm mb-8 text-muted-foreground">Nenhuma sessão ativa nesta mesa.</p>
-            <Button onClick={handleAbrir} disabled={actionLoading === 'abrir'} className="px-10 py-3">
-              {actionLoading === 'abrir' ? 'Abrindo...' : 'Abrir Mesa'}
+            <p className="text-sm mb-2 text-muted-foreground max-w-sm">
+              A sessão abre sozinha quando o cliente faz o 1º pedido pelo QR-code.
+            </p>
+            <p className="text-xs mb-8 text-muted-foreground">Ou abra manualmente para lançar pedidos no balcão:</p>
+            <Button variant="outline" onClick={handleAbrir} disabled={actionLoading === 'abrir'} className="px-10 py-3">
+              {actionLoading === 'abrir' ? 'Abrindo...' : 'Abrir mesa manualmente'}
             </Button>
           </div>
         ) : (
@@ -247,6 +252,15 @@ export default function MesaDetailPage({
                   Fechar Mesa
                 </Button>
 
+                {/* Transferir mesa */}
+                <Button
+                  variant="outline"
+                  className="w-full mt-3"
+                  onClick={() => setShowTransfer(true)}
+                >
+                  Transferir mesa
+                </Button>
+
                 {/* Info */}
                 <p className="text-xs text-muted-foreground text-center mt-3 lg:mt-4">
                   Aberta às {formatTime(data.openedAt)}
@@ -280,6 +294,18 @@ export default function MesaDetailPage({
             </div>
           </AlertDialogContent>
         </AlertDialog>
+
+        {showTransfer && (
+          <TransferirMesaModal
+            origem={mesaNumber}
+            onClose={() => setShowTransfer(false)}
+            onTransferida={() => {
+              setShowTransfer(false);
+              onMesaChanged();
+              onBack();
+            }}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

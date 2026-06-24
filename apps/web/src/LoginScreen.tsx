@@ -24,14 +24,16 @@ export default function LoginScreen() {
     if (!tableNumber) return;
     setMesaStatus("checking");
     api.getMesa(tableNumber)
-      .then((mesa) => setMesaStatus(mesa.status === "OCUPADA" ? "open" : "unavailable"))
+      .then((mesa) => setMesaStatus(mesa.status === "INATIVA" ? "unavailable" : "open"))
       .catch(() => setMesaStatus("unavailable"));
   }, [tableNumber]);
 
   useWebSocket((event) => {
     if (event.tableNumber !== tableNumber) return;
-    if (event.type === "mesa_opened") setMesaStatus("open");
-    if (event.type === "mesa_closed") setMesaStatus("unavailable");
+    // Qualquer mudança na mesa: reconsulta o status (LIVRE e OCUPADA aceitam pedido)
+    api.getMesa(tableNumber)
+      .then((mesa) => setMesaStatus(mesa.status === "INATIVA" ? "unavailable" : "open"))
+      .catch(() => setMesaStatus("unavailable"));
   });
 
   const handleSubmit = () => {

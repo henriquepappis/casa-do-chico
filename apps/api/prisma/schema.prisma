@@ -10,7 +10,7 @@ datasource db {
 model Table {
   id       Int      @id @default(autoincrement())
   number   Int      @unique
-  status   TableStatus @default(LIVRE)
+  status   TableStatus @default(INATIVA)
   sessions TableSession[]
   createdAt DateTime @default(now())
 }
@@ -82,6 +82,7 @@ enum UserRole {
 enum TableStatus {
   LIVRE
   OCUPADA
+  INATIVA
 }
 
 enum OrderStatus {

@@ -21,14 +21,40 @@ export async function pedidosRoutes(app: FastifyInstance) {
 
     const mesa = await prisma.table.findUnique({ where: { number: tableNumber } });
     if (!mesa) return reply.code(404).send({ error: "Mesa não encontrada" });
-    if (mesa.status === "LIVRE") {
-      return reply.code(409).send({ error: "Mesa não está com sessão aberta" });
+    if (mesa.status === "INATIVA") {
+      return reply.code(409).send({ error: "Mesa não está disponível para pedidos" });
     }
 
-    const sessao = await prisma.tableSession.findFirst({
+    // Bloqueia comanda em duas mesas: se o cliente já tem pedido numa sessão
+    // aberta em outra mesa, recusa até que aquela mesa seja fechada.
+    if (clientId) {
+      const comandaAberta = await prisma.order.findFirst({
+        where: {
+          clientId,
+          session: { closedAt: null, table: { number: { not: tableNumber } } },
+        },
+        include: { session: { include: { table: true } } },
+      });
+      if (comandaAberta) {
+        return reply.code(409).send({
+          error: `Você tem uma comanda aberta na Mesa ${comandaAberta.session.table.number}. Finalize-a antes de pedir em outra mesa.`,
+        });
+      }
+    }
+
+    // Garante uma sessão ativa: na mesa LIVRE, o primeiro pedido abre a sessão
+    // e ocupa a mesa automaticamente.
+    let sessao = await prisma.tableSession.findFirst({
       where: { tableId: mesa.id, closedAt: null },
     });
-    if (!sessao) return reply.code(404).send({ error: "Nenhuma sessão ativa na mesa" });
+    let abriuAgora = false;
+    if (!sessao) {
+      sessao = await prisma.tableSession.create({ data: { tableId: mesa.id } });
+      abriuAgora = true;
+    }
+    if (mesa.status !== "OCUPADA") {
+      await prisma.table.update({ where: { id: mesa.id }, data: { status: "OCUPADA" } });
+    }
 
     const pedido = await prisma.order.create({
       data: {
@@ -48,6 +74,7 @@ export async function pedidosRoutes(app: FastifyInstance) {
       include: { items: true },
     });
 
+    if (abriuAgora) broadcast({ type: "mesa_opened", tableNumber });
     broadcast({ type: "new_order", tableNumber, customerName: customerName.trim(), orderId: pedido.id });
 
     printOrder({
@@ -87,6 +114,19 @@ export async function pedidosRoutes(app: FastifyInstance) {
 
     if (!sessao) return reply.code(404).send({ error: "Nenhuma sessão ativa" });
     return sessao.orders;
+  });
+
+  // Comanda aberta do cliente: em qual mesa ele tem sessão ativa, se houver (público)
+  app.get("/clientes/:clientId/comanda", async (request) => {
+    const { clientId } = request.params as { clientId: string };
+    if (!clientId) return { tableNumber: null };
+
+    const aberto = await prisma.order.findFirst({
+      where: { clientId, session: { closedAt: null } },
+      include: { session: { include: { table: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    return { tableNumber: aberto?.session.table.number ?? null };
   });
 
   // Lista pedidos da sessão ativa de uma mesa

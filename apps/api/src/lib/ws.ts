@@ -4,7 +4,8 @@ type WebSocket = SocketStream["socket"];
 export type WsEvent =
   | { type: "new_order"; tableNumber: number; customerName: string; orderId: string }
   | { type: "mesa_opened"; tableNumber: number }
-  | { type: "mesa_closed"; tableNumber: number };
+  | { type: "mesa_closed"; tableNumber: number }
+  | { type: "mesa_updated"; tableNumber: number };
 
 const clients = new Set<WebSocket>();
 

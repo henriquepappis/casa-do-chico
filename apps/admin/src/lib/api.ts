@@ -32,7 +32,7 @@ export async function request<T>(path: string, options?: RequestInit): Promise<T
 export interface Mesa {
   id: number;
   number: number;
-  status: "LIVRE" | "OCUPADA";
+  status: "LIVRE" | "OCUPADA" | "INATIVA";
   sessao: {
     id: string;
     openedAt: string;
@@ -109,6 +109,18 @@ export const api = {
 
   fecharMesa: (number: number) =>
     request<{ id: string }>(`/mesas/${number}/fechar`, { method: "POST" }),
+
+  ativarMesa: (number: number) =>
+    request<Mesa>(`/mesas/${number}/ativar`, { method: "PATCH" }),
+
+  desativarMesa: (number: number) =>
+    request<Mesa>(`/mesas/${number}/desativar`, { method: "PATCH" }),
+
+  transferirMesa: (origem: number, destino: number) =>
+    request<{ origem: number; destino: number }>(`/mesas/${origem}/transferir`, {
+      method: "POST",
+      body: JSON.stringify({ destino }),
+    }),
 
   criarMesa: (number: number) =>
     request<Mesa>("/mesas", { method: "POST", body: JSON.stringify({ number }) }),

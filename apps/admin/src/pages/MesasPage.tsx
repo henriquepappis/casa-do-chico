@@ -24,6 +24,7 @@ export default function MesasPage({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showNova, setShowNova] = useState(false);
+  const [busy, setBusy] = useState<number | null>(null);
   const user = getUser();
 
   const load = async (silent = false) => {
@@ -42,10 +43,23 @@ export default function MesasPage({
 
   const mesasOcupadas = mesas.filter(m => m.status === 'OCUPADA');
   const mesasLivres = mesas.filter(m => m.status === 'LIVRE');
+  const mesasInativas = mesas.filter(m => m.status === 'INATIVA');
   const totalAberto = mesasOcupadas.reduce((sum, m) => sum + (m.sessao?.total ?? 0), 0);
 
   const formatMoney = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  const runAction = async (number: number, fn: () => Promise<unknown>) => {
+    setBusy(number);
+    try {
+      await fn();
+      await load(true);
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const StatCard = ({ label, value, acento, icon }: { label: string; value: string | number; acento: string; icon: string }) => (
     <Card className="p-6 bg-card border-border hover:border-border/80 transition-all duration-200">
@@ -63,40 +77,44 @@ export default function MesasPage({
 
   const MesaCard = ({ mesa }: { mesa: Mesa }) => {
     const isOcupada = mesa.status === 'OCUPADA';
+    const isLivre = mesa.status === 'LIVRE';
+    const isInativa = mesa.status === 'INATIVA';
     const clientesUnicos = mesa.sessao
       ? new Set(mesa.sessao.orders.map(o => o.clientId).filter(Boolean)).size
       : 0;
-    const borderColor = isOcupada ? 'border-red-600/50' : 'border-border';
+    const carregando = busy === mesa.number;
+
+    const borderColor = isOcupada ? 'border-red-600/50' : isLivre ? 'border-green-600/40' : 'border-border';
+    const clickable = isOcupada || isLivre;
 
     return (
-      <button
-        onClick={() => isOcupada && onSelectMesa(mesa.number)}
-        disabled={!isOcupada}
-        className={`relative p-6 rounded-lg border ${borderColor} ${isOcupada ? 'hover:border-red-600/70 hover:bg-red-950/20' : 'hover:border-border/80 hover:bg-muted/30'} transition-all duration-200 text-left disabled:cursor-default group overflow-hidden w-full bg-card`}
+      <Card
+        onClick={() => clickable && onSelectMesa(mesa.number)}
+        className={`relative p-6 border ${borderColor} ${isInativa ? 'opacity-70' : ''} ${clickable ? 'cursor-pointer hover:border-border/80' : ''} transition-all duration-200 overflow-hidden`}
       >
-        {/* Barra de acento no topo */}
         {isOcupada && (
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-600 to-red-500" />
         )}
 
-        {/* Número da mesa */}
         <div className="mb-4 pt-2">
           <p className="text-6xl font-bold text-foreground" style={{ lineHeight: 1 }}>
             {String(mesa.number).padStart(2, '0')}
           </p>
         </div>
 
-        {/* Status badge */}
         <div className="mb-4">
           <Badge
-            className={isOcupada ? 'bg-red-600/20 text-red-300 border-red-600/30' : 'bg-green-600/20 text-green-300 border-green-600/30'}
             variant="outline"
+            className={
+              isOcupada ? 'bg-red-600/20 text-red-300 border-red-600/30'
+              : isLivre ? 'bg-green-600/20 text-green-300 border-green-600/30'
+              : 'bg-muted text-muted-foreground border-border'
+            }
           >
-            {isOcupada ? '🔴 Ocupada' : '🟢 Livre'}
+            {isOcupada ? '🔴 Ocupada' : isLivre ? '🟢 Livre' : '⚪ Inativa'}
           </Badge>
         </div>
 
-        {/* Conteúdo */}
         {isOcupada && mesa.sessao ? (
           <div className="space-y-3">
             <div className="flex justify-between items-end">
@@ -115,14 +133,48 @@ export default function MesasPage({
               </p>
             </div>
           </div>
+        ) : isLivre ? (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Aguardando o 1º pedido pelo QR-code.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              disabled={carregando}
+              onClick={(e) => { e.stopPropagation(); runAction(mesa.number, () => api.desativarMesa(mesa.number)); }}
+            >
+              {carregando ? '...' : 'Desativar'}
+            </Button>
+          </div>
         ) : (
-          <div className="text-center py-4">
-            <p className="text-sm text-muted-foreground">Disponível para reserva</p>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Não aceita pedidos. Ative para abrir ao público.</p>
+            <Button
+              size="sm"
+              className="w-full"
+              disabled={carregando}
+              onClick={(e) => { e.stopPropagation(); runAction(mesa.number, () => api.ativarMesa(mesa.number)); }}
+            >
+              {carregando ? '...' : 'Ativar mesa'}
+            </Button>
           </div>
         )}
-      </button>
+      </Card>
     );
   };
+
+  const Secao = ({ titulo, lista, vazio }: { titulo: string; lista: Mesa[]; vazio: string }) => (
+    <div className="mb-12">
+      <h2 className="text-2xl font-bold mb-6 text-foreground">{titulo}</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {lista.length > 0 ? (
+          lista.map(mesa => <MesaCard key={mesa.id} mesa={mesa} />)
+        ) : (
+          <div className="col-span-full text-center py-12 text-muted-foreground">{vazio}</div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <DashboardLayout onLogout={onLogout} current="mesas" onNavigate={onNavigate}>
@@ -139,17 +191,16 @@ export default function MesasPage({
               <span className="ml-1.5">Atualizar</span>
             </Button>
             {user?.role === 'DONO' && (
-              <Button size="sm" onClick={() => setShowNova(true)}>
-                + Nova Mesa
-              </Button>
+              <Button size="sm" onClick={() => setShowNova(true)}>+ Nova Mesa</Button>
             )}
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <StatCard label="Mesas Ocupadas" value={mesasOcupadas.length} acento="bg-red-600/20 text-red-400" icon="🔴" />
-          <StatCard label="Mesas Livres" value={mesasLivres.length} acento="bg-green-600/20 text-green-400" icon="🟢" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <StatCard label="Ocupadas" value={mesasOcupadas.length} acento="bg-red-600/20 text-red-400" icon="🔴" />
+          <StatCard label="Livres" value={mesasLivres.length} acento="bg-green-600/20 text-green-400" icon="🟢" />
+          <StatCard label="Inativas" value={mesasInativas.length} acento="bg-muted text-muted-foreground" icon="⚪" />
           <StatCard label="Total em Aberto" value={formatMoney(totalAberto)} acento="bg-amber-600/20 text-amber-400" icon="💰" />
         </div>
 
@@ -157,44 +208,20 @@ export default function MesasPage({
           <div className="flex items-center justify-center h-48">
             <RefreshCw size={24} className="animate-spin text-muted-foreground" />
           </div>
+        ) : mesas.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-lg font-medium mb-2 text-foreground">Nenhuma mesa cadastrada</p>
+            <p className="text-sm mb-6 text-muted-foreground">Adicione mesas para começar a gerenciar o salão.</p>
+            {user?.role === 'DONO' && (
+              <Button onClick={() => setShowNova(true)}>Adicionar primeira mesa</Button>
+            )}
+          </div>
         ) : (
           <>
-            {/* Mesas Ocupadas */}
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold mb-6 text-foreground">Ocupadas</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {mesasOcupadas.length > 0 ? (
-                  mesasOcupadas.map(mesa => <MesaCard key={mesa.id} mesa={mesa} />)
-                ) : (
-                  <div className="col-span-full text-center py-12 text-muted-foreground">
-                    Nenhuma mesa ocupada no momento
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Mesas Livres */}
-            <div>
-              <h2 className="text-2xl font-bold mb-6 text-foreground">Livres</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {mesasLivres.length > 0 ? (
-                  mesasLivres.map(mesa => <MesaCard key={mesa.id} mesa={mesa} />)
-                ) : (
-                  <div className="col-span-full text-center py-12 text-muted-foreground">
-                    Todas as mesas estão ocupadas
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {mesas.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-lg font-medium mb-2 text-foreground">Nenhuma mesa cadastrada</p>
-                <p className="text-sm mb-6 text-muted-foreground">Adicione mesas para começar a gerenciar o salão.</p>
-                {user?.role === 'DONO' && (
-                  <Button onClick={() => setShowNova(true)}>Adicionar primeira mesa</Button>
-                )}
-              </div>
+            <Secao titulo="Ocupadas" lista={mesasOcupadas} vazio="Nenhuma mesa ocupada no momento" />
+            <Secao titulo="Livres" lista={mesasLivres} vazio="Nenhuma mesa livre — ative uma inativa abaixo" />
+            {mesasInativas.length > 0 && (
+              <Secao titulo="Inativas" lista={mesasInativas} vazio="" />
             )}
           </>
         )}
