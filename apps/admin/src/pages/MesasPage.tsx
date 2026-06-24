@@ -44,7 +44,6 @@ export default function MesasPage({
   const mesasOcupadas = mesas.filter(m => m.status === 'OCUPADA');
   const mesasLivres = mesas.filter(m => m.status === 'LIVRE');
   const mesasInativas = mesas.filter(m => m.status === 'INATIVA');
-  const totalAberto = mesasOcupadas.reduce((sum, m) => sum + (m.sessao?.total ?? 0), 0);
 
   const formatMoney = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -197,11 +196,10 @@ export default function MesasPage({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-3 gap-6 mb-12">
           <StatCard label="Ocupadas" value={mesasOcupadas.length} acento="bg-red-600/20 text-red-400" icon="🔴" />
           <StatCard label="Livres" value={mesasLivres.length} acento="bg-green-600/20 text-green-400" icon="🟢" />
           <StatCard label="Inativas" value={mesasInativas.length} acento="bg-muted text-muted-foreground" icon="⚪" />
-          <StatCard label="Total em Aberto" value={formatMoney(totalAberto)} acento="bg-amber-600/20 text-amber-400" icon="💰" />
         </div>
 
         {loading ? (

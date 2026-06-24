@@ -9,6 +9,7 @@ import { mesasRoutes } from "./routes/mesas.js";
 import { pedidosRoutes } from "./routes/pedidos.js";
 import { wsRoutes } from "./routes/ws.js";
 import { cardapioRoutes } from "./routes/cardapio.js";
+import { relatorioRoutes } from "./routes/relatorio.js";
 
 const app = Fastify({ logger: true });
 
@@ -30,6 +31,7 @@ await app.register(mesasRoutes);
 await app.register(pedidosRoutes);
 await app.register(wsRoutes);
 await app.register(cardapioRoutes);
+await app.register(relatorioRoutes);
 
 const port = Number(process.env.PORT ?? 3000);
 await app.listen({ port, host: "0.0.0.0" });

@@ -74,6 +74,54 @@ export interface User {
   createdAt: string;
 }
 
+export interface RelatorioSessao {
+  id: string;
+  tableNumber: number;
+  openedAt: string;
+  closedAt: string;
+  total: number;
+  pedidos: number;
+  clientes: number;
+  orders: Order[];
+}
+
+export interface Dashboard {
+  hoje: {
+    faturamento: number;
+    faturamentoFechado: number;
+    emAberto: number;
+    ticketMedio: number;
+    mesasFechadas: number;
+    pedidosUltimaHora: number;
+  };
+  mesas: { ocupadas: number; livres: number; inativas: number };
+  ontem: { faturamento: number; variacao: number | null };
+  tendencia: { dia: string; total: number }[];
+}
+
+export interface ItemRelatorio {
+  name: string;
+  quantidade: number;
+  total: number;
+  share: number;
+  acumulado: number;
+  classe: string;
+}
+
+export interface Relatorio {
+  resumo: {
+    totalVendido: number;
+    mesasAtendidas: number;
+    totalPedidos: number;
+    ticketMedio: number;
+  };
+  tendencia: { dia: string; total: number }[];
+  porHora: { hora: number; total: number; pedidos: number }[];
+  porDiaSemana: { dow: number; total: number; pedidos: number }[];
+  itens: ItemRelatorio[];
+  sessoes: RelatorioSessao[];
+}
+
 export interface Order {
   id: string;
   customerName: string;
@@ -152,4 +200,10 @@ export const api = {
 
   deletarItem: (id: string) =>
     request<void>(`/cardapio/${id}`, { method: "DELETE" }),
+
+  getRelatorio: (from: string, to: string) =>
+    request<Relatorio>(`/relatorio?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&tz=${new Date().getTimezoneOffset()}`),
+
+  getDashboard: () =>
+    request<Dashboard>(`/dashboard?tz=${new Date().getTimezoneOffset()}`),
 };
