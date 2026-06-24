@@ -1,0 +1,34 @@
+# Configuração de deploy da API no Render (plano free).
+# O front continua no Cloudflare Pages; o banco no Neon.
+#
+# Primeiro deploy: no painel do Render, "New > Blueprint" e aponte para este repo.
+# As variáveis marcadas com sync:false precisam ser preenchidas no painel
+# (DATABASE_URL do Neon, JWT_SECRET forte, FRONTEND_URL do Cloudflare).
+services:
+  - type: web
+    name: casa-do-chico-api
+    runtime: node
+    plan: free
+    rootDir: .
+    # npm ci monta os workspaces; geramos o client, aplicamos as migrations
+    # pendentes (idempotente) e compilamos a API.
+    buildCommand: >
+      npm ci &&
+      npm run db:generate -w @casa-do-chico/api &&
+      npm run db:deploy -w @casa-do-chico/api &&
+      npm run build -w @casa-do-chico/api
+    startCommand: npm run start -w @casa-do-chico/api
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Connection string do Neon (Settings > sync:false = preencher no painel)
+      - key: DATABASE_URL
+        sync: false
+      # Gere com: openssl rand -base64 32
+      - key: JWT_SECRET
+        sync: false
+      # URL do front no Cloudflare, ex: https://www.henriquepappis.com
+      - key: FRONTEND_URL
+        sync: false
