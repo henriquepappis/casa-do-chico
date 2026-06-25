@@ -17,10 +17,10 @@ export default function BlockedScreen() {
       <p className="text-gray-600 mb-1">
         Seus pedidos ficam todos na mesma mesa.
       </p>
-      <p className="text-gray-500 text-sm mb-10 mt-8 max-w-xs">
+      <p className="text-gray-500 text-sm max-w-xs" style={{ marginTop: "1rem", marginBottom: "1rem" }}>
         Volte para a <span className="font-semibold">Mesa {blockedTable}</span> e continue pedindo normalmente por lá.
       </p>
-      <button
+      <button 
         onClick={irParaMinhaMesa}
         className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors"
       >

@@ -19,7 +19,7 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 await app.register(cors, { origin: allowedOrigins });
 await app.register(rateLimit, {
-  global: false, // só aplica onde explicitamente configurado
+  global: false,
 });
 await app.register(websocket);
 await app.register(jwtPlugin);

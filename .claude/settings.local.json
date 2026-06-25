@@ -64,7 +64,24 @@
       "Bash(npx --yes prisma migrate dev --name add_status_inativa)",
       "Bash(npx --yes prisma migrate dev --name mesa_default_inativa)",
       "Bash(curl -s -m 5 http://localhost:3000/health)",
-      "Bash(curl -s -m 30 https://casa-do-chico-api.onrender.com/clientes/zzz/comanda)"
+      "Bash(curl -s -m 30 https://casa-do-chico-api.onrender.com/clientes/zzz/comanda)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Read(///wsl.localhost/ubuntu-24.04/home/henriquepappis/projetos/**)",
+      "Read(//mnt/wsl/ubuntu-24.04/home/henriquepappis/projetos/**)",
+      "Bash(wsl -d ubuntu-24.04 -- ls /home/henriquepappis/projetos/casa-do-chico)",
+      "Bash(ls \"\\\\\\\\\\\\\\\\wsl.localhost\\\\\\\\ubuntu-24.04\\\\\\\\home\\\\\\\\henriquepappis\\\\\\\\projetos\\\\\\\\casa-do-chico\\\\\\\\apps\\\\\\\\api\\\\\\\\.env\" 2>/dev/null && echo \"existe\" || echo \"não existe\")",
+      "Bash(cd \"\\\\\\\\wsl.localhost\\\\ubuntu-24.04\\\\home\\\\henriquepappis\\\\projetos\\\\casa-do-chico\")",
+      "Bash(wsl -d ubuntu-24.04 -- bash -c \"cd /home/henriquepappis/projetos/casa-do-chico && npx tsx apps/api/src/seed-cardapio.ts\")",
+      "PowerShell(wsl -d ubuntu-24.04 -- bash -c \"cd /home/henriquepappis/projetos/casa-do-chico && npx tsx apps/api/src/seed-cardapio.ts\")",
+      "PowerShell(wsl -d ubuntu-24.04 -e bash -c \"cd /home/henriquepappis/projetos/casa-do-chico && npx tsx apps/api/src/seed-cardapio.ts 2>&1\")",
+      "PowerShell($env:WSLENV = \"\"; $result = & wsl.exe -d ubuntu-24.04 --cd \"/home/henriquepappis/projetos/casa-do-chico\" -- npx tsx apps/api/src/seed-cardapio.ts; $result)",
+      "Bash(export HOME=/root)",
+      "Bash(cd /home/henriquepappis/projetos/casa-do-chico)",
+      "Bash(ls /home/ 2>&1 && whoami)",
+      "PowerShell(& cmd.exe /c \"cd /d C:\\\\Windows\\\\Temp && wsl.exe -d ubuntu-24.04 --cd /home/henriquepappis/projetos/casa-do-chico -- npx tsx apps/api/src/seed-cardapio.ts\" 2>&1)",
+      "Bash(git -C \"\\\\\\\\wsl.localhost\\\\ubuntu-24.04\\\\home\\\\henriquepappis\\\\projetos\\\\casa-do-chico\" status)",
+      "Bash(git -C \"\\\\\\\\wsl.localhost\\\\ubuntu-24.04\\\\home\\\\henriquepappis\\\\projetos\\\\casa-do-chico\" diff)"
     ]
   }
 }
