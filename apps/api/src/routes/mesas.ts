@@ -238,7 +238,7 @@ export async function mesasRoutes(app: FastifyInstance) {
       prisma.table.update({ where: { id: mesaDestino.id }, data: { status: "OCUPADA" } }),
     ]);
 
-    broadcast({ type: "mesa_updated", tableNumber: origemNumero });
+    broadcast({ type: "mesa_transferred", tableNumber: origemNumero, destinoNumber: destino });
     broadcast({ type: "mesa_opened", tableNumber: destino });
     return reply.code(200).send({ origem: origemNumero, destino });
   });

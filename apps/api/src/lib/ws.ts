@@ -5,7 +5,8 @@ export type WsEvent =
   | { type: "new_order"; tableNumber: number; customerName: string; orderId: string }
   | { type: "mesa_opened"; tableNumber: number }
   | { type: "mesa_closed"; tableNumber: number }
-  | { type: "mesa_updated"; tableNumber: number };
+  | { type: "mesa_updated"; tableNumber: number }
+  | { type: "mesa_transferred"; tableNumber: number; destinoNumber: number };
 
 const clients = new Set<WebSocket>();
 

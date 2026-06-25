@@ -208,7 +208,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }));
       try {
         localStorage.removeItem(CART_KEY);
-        localStorage.removeItem(CLIENT_ID_KEY);
+      } catch {}
+    }
+
+    if (event.type === "mesa_transferred" && event.tableNumber === stateRef.current.tableNumber) {
+      setState((s) => ({
+        ...s,
+        isLoggedIn: false,
+        screen: "blocked",
+        blockedTable: event.destinoNumber,
+        cart: [],
+        orders: [],
+      }));
+      try {
+        localStorage.removeItem(CART_KEY);
       } catch {}
     }
   });
