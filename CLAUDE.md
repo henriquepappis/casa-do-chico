@@ -144,7 +144,7 @@ WebSocket: `broadcast()` em `lib/ws.ts`. Eventos: `new_order`, `mesa_opened`,
 - **Admin**: ⚠️ **NÃO é git-deploy** — a integração git do Cloudflare criava um
   Worker errado. O admin é publicado **manualmente via Wrangler**:
   ```bash
-  VITE_API_URL=https://casa-do-chico-api.onrender.com npm run build -w apps/admin
+  VITE_API_URL=https://casa-do-chico-api.onrender.com VITE_WEB_URL=https://www.henriquepappis.com npm run build -w apps/admin
   npx wrangler pages deploy apps/admin/dist --project-name casa-do-chico-admin --branch main --commit-dirty=true
   ```
   (precisa `npx wrangler login` uma vez). **Sempre republicar o admin manualmente

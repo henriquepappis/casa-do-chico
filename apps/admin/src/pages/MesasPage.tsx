@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/components/DashboardLayout';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, QrCode } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Mesa } from '../lib/api';
 import { getUser } from '../lib/auth';
@@ -11,6 +11,7 @@ import { toast } from '../lib/toast';
 import { useWebSocket } from '../lib/useWebSocket';
 import NovaMesaModal from '../components/NovaMesaModal';
 import ElapsedTime from '../components/ElapsedTime';
+import QrCodeModal from '../components/QrCodeModal';
 import type { NavItem } from '../App';
 
 export default function MesasPage({
@@ -27,6 +28,7 @@ export default function MesasPage({
   const [refreshing, setRefreshing] = useState(false);
   const [showNova, setShowNova] = useState(false);
   const [busy, setBusy] = useState<number | null>(null);
+  const [qrMesa, setQrMesa] = useState<number | null>(null);
   const user = getUser();
 
   const load = async (silent = false) => {
@@ -97,10 +99,17 @@ export default function MesasPage({
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-600 to-red-500" />
         )}
 
-        <div className="mb-4 pt-2">
+        <div className="mb-4 pt-2 flex items-start justify-between">
           <p className="text-6xl font-bold text-foreground" style={{ lineHeight: 1 }}>
             {String(mesa.number).padStart(2, '0')}
           </p>
+          <button
+            onClick={(e) => { e.stopPropagation(); setQrMesa(mesa.number); }}
+            className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+            title="Ver QR Code"
+          >
+            <QrCode size={16} />
+          </button>
         </div>
 
         <div className="mb-4">
@@ -230,6 +239,10 @@ export default function MesasPage({
 
       {showNova && (
         <NovaMesaModal onClose={() => setShowNova(false)} onCreated={() => { setShowNova(false); load(); }} />
+      )}
+
+      {qrMesa !== null && (
+        <QrCodeModal mesaNumber={qrMesa} onClose={() => setQrMesa(null)} />
       )}
     </DashboardLayout>
   );

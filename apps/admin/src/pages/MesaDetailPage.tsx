@@ -3,13 +3,14 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import DashboardLayout from '@/components/DashboardLayout';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { ArrowLeft, RefreshCw, QrCode } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Order } from '../lib/api';
 import { toast } from '../lib/toast';
 import { useWebSocket } from '../lib/useWebSocket';
 import TransferirMesaModal from '../components/TransferirMesaModal';
 import ElapsedTime from '../components/ElapsedTime';
+import QrCodeModal from '../components/QrCodeModal';
 import type { NavItem } from '../App';
 
 interface SessionData {
@@ -48,6 +49,7 @@ export default function MesaDetailPage({
   const [actionLoading, setActionLoading] = useState<'abrir' | 'fechar' | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -124,6 +126,10 @@ export default function MesaDetailPage({
               {data ? <>Detalhes e resumo de pedidos • Aberta às {formatTime(data.openedAt)}</> : 'Detalhes e resumo de pedidos'}
             </p>
           </div>
+          <Button variant="outline" size="sm" onClick={() => setShowQr(true)}>
+            <QrCode size={13} />
+            <span className="ml-1.5 hidden sm:inline">QR Code</span>
+          </Button>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             <span className="ml-1.5 hidden sm:inline">Atualizar</span>
@@ -314,6 +320,10 @@ export default function MesaDetailPage({
               onBack();
             }}
           />
+        )}
+
+        {showQr && (
+          <QrCodeModal mesaNumber={mesaNumber} onClose={() => setShowQr(false)} />
         )}
       </div>
     </DashboardLayout>
