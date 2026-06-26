@@ -75,7 +75,7 @@ export default function CartScreen() {
           >
             Carrinho vazio
           </h2>
-          <p className="text-xs text-center" style={{ color: "#7B3F2A", opacity: 0.7, marginTop: "0.5rem", marginBottom: "0.5rem" }}>
+          <p className="text-xs text-center" style={{ color: "#7B3F2A", opacity: 0.7, marginTop: "1rem", marginBottom: "1rem" }}>
             Adicione itens do cardápio para fazer seu pedido
           </p>
           <button
