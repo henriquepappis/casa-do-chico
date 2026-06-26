@@ -3,14 +3,19 @@ import type { MenuItem } from "../AppContext";
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+  } catch {
+    throw new Error("Sem conexão com o servidor. Tente novamente em instantes.");
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Erro ${res.status}`);
+    throw new Error(body.error ?? `Erro ao processar sua solicitação (${res.status}).`);
   }
 
   if (res.status === 204) return undefined as T;

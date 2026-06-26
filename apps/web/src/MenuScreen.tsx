@@ -207,7 +207,7 @@ export default function MenuScreen() {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
           style={{
-            backgroundImage: `url(https://d2xsxph8kpxj0f.cloudfront.net/310519663781250167/V42Vrqav2DfacujANNnqEi/hero-login-bg-XNrFw7zEphAw8fg3PNHFdn.webp)`,
+            backgroundImage: `url(/background.webp)`,
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />

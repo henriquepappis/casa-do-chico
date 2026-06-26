@@ -16,6 +16,7 @@ import { RefreshCw, Trash2, KeyRound } from "lucide-react";
 import { api } from "../lib/api";
 import type { User } from "../lib/api";
 import { getUser } from "../lib/auth";
+import { toast } from "../lib/toast";
 import NovoUsuarioModal from "../components/NovoUsuarioModal";
 import type { NavItem } from "../App";
 
@@ -64,7 +65,7 @@ export default function UsuariosPage({
       setToDelete(null);
       await load(true);
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setActionLoading(false);
     }

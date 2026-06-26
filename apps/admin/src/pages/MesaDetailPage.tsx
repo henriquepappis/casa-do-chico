@@ -6,6 +6,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Order } from '../lib/api';
+import { toast } from '../lib/toast';
 import { useWebSocket } from '../lib/useWebSocket';
 import TransferirMesaModal from '../components/TransferirMesaModal';
 import type { NavItem } from '../App';
@@ -73,7 +74,7 @@ export default function MesaDetailPage({
       await load();
       onMesaChanged();
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setActionLoading(null);
     }
@@ -88,7 +89,7 @@ export default function MesaDetailPage({
       onMesaChanged();
       onBack();
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setActionLoading(null);
     }

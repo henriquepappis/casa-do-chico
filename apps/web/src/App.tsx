@@ -6,6 +6,7 @@ import CartScreen from "./CartScreen";
 import ReceiptScreen from "./ReceiptScreen";
 import BlockedScreen from "./BlockedScreen";
 import OfflineBanner from "./OfflineBanner";
+import Toaster from "./components/Toaster";
 
 // Componente interno isolado para escutar o contexto e chavear as telas
 function ScreenRouter() {
@@ -30,6 +31,7 @@ function ScreenRouter() {
 function App() {
   return (
     <AppProvider>
+      <Toaster />
       <OfflineBanner />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
         <ScreenRouter />

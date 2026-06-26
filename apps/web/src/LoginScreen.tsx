@@ -62,11 +62,11 @@ export default function LoginScreen() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url(https://d2xsxph8kpxj0f.cloudfront.net/310519663781250167/V42Vrqav2DfacujANNnqEi/hero-login-bg-XNrFw7zEphAw8fg3PNHFdn.webp)`,
+          backgroundImage: `url(/background.webp)`,
         }}
       />
       {/* Gradient overlay — dark at top and bottom, slightly transparent in middle */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/55 to-black/85" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/70" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-dvh">
@@ -79,19 +79,13 @@ export default function LoginScreen() {
               className="w-full h-full object-contain p-2"
             />
           </div>
-          <h1
-            className="text-white text-3xl font-bold text-center leading-tight"
-            style={{ fontFamily: "'Playfair Display', serif", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}
-          >
-            Casa do Chico
-          </h1>
-          <p className="text-white/70 text-sm font-light tracking-widest uppercase mt-1">
-            Bar &amp; Restaurante
-          </p>
         </div>
 
+        {/* Spacer */}
+        <div className="flex-1" />
+
         {/* Mesa badge */}
-        <div className="flex justify-center animate-slide-up" style={{ animationDelay: "60ms" }}>
+        <div className="flex justify-center mb-3 animate-slide-up" style={{ animationDelay: "60ms" }}>
           {tableError ? (
             <div
               className="flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg"
@@ -112,9 +106,6 @@ export default function LoginScreen() {
             </div>
           )}
         </div>
-
-        {/* Spacer */}
-        <div className="flex-1" />
 
         {/* Sem mesa: instrução para escanear QR code */}
         {!tableNumber ? (

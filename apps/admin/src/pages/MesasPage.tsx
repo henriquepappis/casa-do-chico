@@ -7,6 +7,7 @@ import { RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Mesa } from '../lib/api';
 import { getUser } from '../lib/auth';
+import { toast } from '../lib/toast';
 import { useWebSocket } from '../lib/useWebSocket';
 import NovaMesaModal from '../components/NovaMesaModal';
 import type { NavItem } from '../App';
@@ -54,7 +55,7 @@ export default function MesasPage({
       await fn();
       await load(true);
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setBusy(null);
     }

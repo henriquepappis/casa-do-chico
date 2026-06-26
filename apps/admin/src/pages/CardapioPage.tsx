@@ -15,6 +15,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { api } from "../lib/api";
 import type { MenuItem, MenuCategory } from "../lib/api";
+import { toast } from "../lib/toast";
 import ItemCardapioModal from "../components/ItemCardapioModal";
 import type { NavItem } from "../App";
 
@@ -66,7 +67,7 @@ export default function CardapioPage({
       setToDelete(null);
       await load(true);
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setActionLoading(false);
     }
@@ -77,7 +78,7 @@ export default function CardapioPage({
       await api.atualizarItem(item.id, { active: !item.active });
       await load(true);
     } catch (err) {
-      alert((err as Error).message);
+      toast.error((err as Error).message);
     }
   };
 

@@ -7,6 +7,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { api } from "./lib/api";
 import type { BackendOrder } from "./lib/api";
 import { useWebSocket } from "./lib/useWebSocket";
+import { toast } from "./lib/toast";
 
 export interface MenuItem {
   id: string;
@@ -332,7 +333,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
     } catch (err) {
       setState((s) => ({ ...s, sendingOrder: false }));
-      alert((err as Error).message ?? "Erro ao enviar pedido. Tente novamente.");
+      toast.error((err as Error).message ?? "Erro ao enviar pedido. Tente novamente.");
     }
   }, []);
 
