@@ -3,10 +3,23 @@ import { prisma } from "../lib/prisma.js";
 import { printOrder } from "../lib/printer.js";
 import { broadcast } from "../lib/ws.js";
 
+// Contador por clientId: máx 10 pedidos/hora por cliente
+const contadorClientes = new Map<string, { count: number; resetAt: number }>();
+const LIMITE_PEDIDOS_POR_HORA = 10;
+
+// Limpa entradas expiradas a cada hora para não acumular memória
+setInterval(() => {
+  const agora = Date.now();
+  for (const [id, entry] of contadorClientes) {
+    if (agora >= entry.resetAt) contadorClientes.delete(id);
+  }
+}, 3_600_000);
+
 export async function pedidosRoutes(app: FastifyInstance) {
-  // Cliente envia pedido (sem auth) — limitado a 10 pedidos/minuto por IP
+  // Cliente envia pedido (sem auth)
+  // Defesa em 2 camadas: IP (30/min, anti-flood) + clientId (10/hora, anti-abuso)
   app.post("/pedidos", {
-    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
   }, async (request, reply) => {
     const { tableNumber, customerName, clientId, items } = request.body as {
       tableNumber: number;
@@ -17,6 +30,19 @@ export async function pedidosRoutes(app: FastifyInstance) {
 
     if (!tableNumber || !customerName?.trim() || !items?.length) {
       return reply.code(400).send({ error: "tableNumber, customerName e items são obrigatórios" });
+    }
+
+    if (clientId) {
+      const agora = Date.now();
+      const entrada = contadorClientes.get(clientId);
+      if (entrada && agora < entrada.resetAt) {
+        if (entrada.count >= LIMITE_PEDIDOS_POR_HORA) {
+          return reply.code(429).send({ error: "Limite de pedidos atingido. Aguarde antes de fazer um novo pedido." });
+        }
+        entrada.count++;
+      } else {
+        contadorClientes.set(clientId, { count: 1, resetAt: agora + 3_600_000 });
+      }
     }
 
     const mesa = await prisma.table.findUnique({ where: { number: tableNumber } });
