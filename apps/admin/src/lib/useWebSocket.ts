@@ -6,7 +6,9 @@ const WS_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:3000")
 export type WsEvent =
   | { type: "new_order"; tableNumber: number; customerName: string; orderId: string }
   | { type: "mesa_opened"; tableNumber: number }
-  | { type: "mesa_closed"; tableNumber: number };
+  | { type: "mesa_closed"; tableNumber: number }
+  | { type: "mesa_transferred"; tableNumber: number; destinoNumber: number }
+  | { type: "mesa_updated"; tableNumber: number };
 
 export function useWebSocket(onEvent: (event: WsEvent) => void) {
   const onEventRef = useRef(onEvent);

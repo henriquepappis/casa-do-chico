@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { getUser, clearAuth } from '../lib/auth';
+import { useWebSocket } from '../lib/useWebSocket';
+import { notifs } from '../lib/notifications';
+import NotificationBell from './NotificationBell';
 
 type NavItem = "visao" | "mesas" | "cardapio" | "historico" | "usuarios";
 
@@ -17,6 +20,25 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, onLogout, current = "mesas", onNavigate }: DashboardLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
   const user = getUser();
+
+  // Escuta eventos WS e alimenta o centro de notificações
+  useWebSocket((event) => {
+    if (event.type === "new_order") {
+      const mesa = String(event.tableNumber).padStart(2, "0");
+      notifs.add("new_order", `Novo pedido — Mesa ${mesa} · ${event.customerName}`, event.tableNumber);
+      notifs.playSound();
+    } else if (event.type === "mesa_opened") {
+      const mesa = String(event.tableNumber).padStart(2, "0");
+      notifs.add("mesa_opened", `Mesa ${mesa} aberta`, event.tableNumber);
+    } else if (event.type === "mesa_closed") {
+      const mesa = String(event.tableNumber).padStart(2, "0");
+      notifs.add("mesa_closed", `Mesa ${mesa} encerrada`, event.tableNumber);
+    } else if (event.type === "mesa_transferred") {
+      const orig = String(event.tableNumber).padStart(2, "0");
+      const dest = String(event.destinoNumber).padStart(2, "0");
+      notifs.add("mesa_transferred", `Mesa ${orig} → Mesa ${dest} transferida`, event.destinoNumber);
+    }
+  });
 
   const handleLogout = () => {
     clearAuth();
@@ -120,17 +142,24 @@ export default function DashboardLayout({ children, onLogout, current = "mesas",
             <img src="/logo.jpeg" alt="Casa do Chico" className="w-8 h-8 rounded-lg object-cover" />
             <span className="font-bold text-sm">Casa do Chico</span>
           </div>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-72">
+                <SidebarContent />
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
 
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72">
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
+        {/* Header Desktop */}
+        <div className="hidden md:flex items-center justify-end h-14 px-6 border-b border-border bg-card/50">
+          <NotificationBell />
         </div>
 
         {/* Content Area */}

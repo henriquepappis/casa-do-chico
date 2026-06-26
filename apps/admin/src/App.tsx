@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getToken, getUser } from "./lib/auth";
 import LoginPage from "./pages/LoginPage";
 import MesasPage from "./pages/MesasPage";
@@ -8,6 +8,7 @@ import CardapioPage from "./pages/CardapioPage";
 import RelatorioPage from "./pages/RelatorioPage";
 import VisaoGeralPage from "./pages/VisaoGeralPage";
 import { Toaster } from "./components/ui/toaster";
+import { adminNavigate } from "./lib/adminNavigate";
 
 export type NavItem = "visao" | "mesas" | "cardapio" | "historico" | "usuarios";
 
@@ -29,6 +30,16 @@ function telaInicial(): View {
 export default function App() {
   const [view, setView] = useState<View>(telaInicial);
   const [mesasKey, setMesasKey] = useState(0);
+
+  useEffect(() => {
+    adminNavigate.setHandler((screen, mesaNumber) => {
+      if (screen === "mesa" && mesaNumber !== undefined) {
+        setView({ screen: "mesa", number: mesaNumber });
+      } else {
+        setView({ screen: "mesas" });
+      }
+    });
+  }, []);
 
   if (view.screen === "login") {
     return (
