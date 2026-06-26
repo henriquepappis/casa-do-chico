@@ -15,6 +15,25 @@ setInterval(() => {
   }
 }, 3_600_000);
 
+// Lock por clientId: serializa o guard de comanda dupla para evitar race condition.
+// Sem isso, dois pedidos simultâneos do mesmo cliente em mesas diferentes passariam
+// pelo check antes de qualquer um ter criado o pedido.
+const clienteLocks = new Map<string, Promise<void>>();
+
+async function withClientLock<T>(clientId: string, fn: () => Promise<T>): Promise<T> {
+  while (clienteLocks.has(clientId)) {
+    await clienteLocks.get(clientId);
+  }
+  let release!: () => void;
+  clienteLocks.set(clientId, new Promise<void>((r) => { release = r; }));
+  try {
+    return await fn();
+  } finally {
+    clienteLocks.delete(clientId);
+    release();
+  }
+}
+
 export async function pedidosRoutes(app: FastifyInstance) {
   // Cliente envia pedido (sem auth)
   // Defesa em 2 camadas: IP (30/min, anti-flood) + clientId (10/hora, anti-abuso)
@@ -51,71 +70,74 @@ export async function pedidosRoutes(app: FastifyInstance) {
       return reply.code(409).send({ error: "Mesa não está disponível para pedidos" });
     }
 
-    // Bloqueia comanda em duas mesas: se o cliente já tem pedido numa sessão
-    // aberta em outra mesa, recusa até que aquela mesa seja fechada.
-    if (clientId) {
-      const comandaAberta = await prisma.order.findFirst({
-        where: {
-          clientId,
-          session: { closedAt: null, table: { number: { not: tableNumber } } },
-        },
-        include: { session: { include: { table: true } } },
-      });
-      if (comandaAberta) {
-        return reply.code(409).send({
-          error: `Você tem uma comanda aberta na Mesa ${comandaAberta.session.table.number}. Finalize-a antes de pedir em outra mesa.`,
+    // Seção crítica: check de comanda dupla + abrir sessão + criar pedido.
+    // Executada sob lock por clientId para evitar race condition entre dois pedidos
+    // simultâneos do mesmo cliente em mesas diferentes.
+    const executar = async () => {
+      if (clientId) {
+        const comandaAberta = await prisma.order.findFirst({
+          where: {
+            clientId,
+            session: { closedAt: null, table: { number: { not: tableNumber } } },
+          },
+          include: { session: { include: { table: true } } },
         });
+        if (comandaAberta) {
+          return reply.code(409).send({
+            error: `Você tem uma comanda aberta na Mesa ${comandaAberta.session.table.number}. Finalize-a antes de pedir em outra mesa.`,
+          });
+        }
       }
-    }
 
-    // Garante uma sessão ativa: na mesa LIVRE, o primeiro pedido abre a sessão
-    // e ocupa a mesa automaticamente.
-    let sessao = await prisma.tableSession.findFirst({
-      where: { tableId: mesa.id, closedAt: null },
-    });
-    let abriuAgora = false;
-    if (!sessao) {
-      sessao = await prisma.tableSession.create({ data: { tableId: mesa.id } });
-      abriuAgora = true;
-    }
-    if (mesa.status !== "OCUPADA") {
-      await prisma.table.update({ where: { id: mesa.id }, data: { status: "OCUPADA" } });
-    }
+      let sessao = await prisma.tableSession.findFirst({
+        where: { tableId: mesa.id, closedAt: null },
+      });
+      let abriuAgora = false;
+      if (!sessao) {
+        sessao = await prisma.tableSession.create({ data: { tableId: mesa.id } });
+        abriuAgora = true;
+      }
+      if (mesa.status !== "OCUPADA") {
+        await prisma.table.update({ where: { id: mesa.id }, data: { status: "OCUPADA" } });
+      }
 
-    const pedido = await prisma.order.create({
-      data: {
-        sessionId: sessao.id,
-        customerName: customerName.trim(),
-        clientId: clientId ?? "",
-        items: {
-          create: items.map((item) => ({
-            menuItemId: item.menuItemId,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            observation: item.observation ?? "",
-          })),
+      const pedido = await prisma.order.create({
+        data: {
+          sessionId: sessao.id,
+          customerName: customerName.trim(),
+          clientId: clientId ?? "",
+          items: {
+            create: items.map((item) => ({
+              menuItemId: item.menuItemId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              observation: item.observation ?? "",
+            })),
+          },
         },
-      },
-      include: { items: true },
-    });
+        include: { items: true },
+      });
 
-    if (abriuAgora) broadcast({ type: "mesa_opened", tableNumber });
-    broadcast({ type: "new_order", tableNumber, customerName: customerName.trim(), orderId: pedido.id });
+      if (abriuAgora) broadcast({ type: "mesa_opened", tableNumber });
+      broadcast({ type: "new_order", tableNumber, customerName: customerName.trim(), orderId: pedido.id });
 
-    printOrder({
-      tableNumber,
-      customerName: customerName.trim(),
-      orderId: pedido.id,
-      createdAt: pedido.createdAt,
-      items: pedido.items.map((i) => ({
-        name: i.name,
-        quantity: i.quantity,
-        observation: i.observation,
-      })),
-    }).catch(() => {});
+      printOrder({
+        tableNumber,
+        customerName: customerName.trim(),
+        orderId: pedido.id,
+        createdAt: pedido.createdAt,
+        items: pedido.items.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          observation: i.observation,
+        })),
+      }).catch(() => {});
 
-    return reply.code(201).send(pedido);
+      return reply.code(201).send(pedido);
+    };
+
+    return clientId ? withClientLock(clientId, executar) : executar();
   });
 
   // Pedidos do cliente na sessão ativa (público — requer mesa + clientId + sessão aberta)
