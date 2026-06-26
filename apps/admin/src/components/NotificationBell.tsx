@@ -35,7 +35,7 @@ export default function NotificationBell() {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    return notifs.subscribe(({ notifications: ns, soundEnabled: se }) => {
+    const unsub = notifs.subscribe(({ notifications: ns, soundEnabled: se }) => {
       setNotifications(ns);
       setSoundEnabled(se);
 
@@ -45,12 +45,12 @@ export default function NotificationBell() {
         lastIdRef.current = newest.id;
         const popupId = ++popupSeq;
         setPopups((prev) => [...prev, { ...newest, popupId }].slice(-3));
-        const t = setTimeout(() => {
+        setTimeout(() => {
           setPopups((prev) => prev.filter((p) => p.popupId !== popupId));
         }, 6000);
-        return () => clearTimeout(t);
       }
     });
+    return unsub;
   }, []);
 
   // Fecha dropdown ao clicar fora

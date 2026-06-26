@@ -27,6 +27,6 @@ export const toast = {
   info: (msg: string) => add(msg, "info"),
   subscribe: (fn: Listener) => {
     listeners.add(fn);
-    return () => listeners.delete(fn);
+    return () => { listeners.delete(fn); };
   },
 };

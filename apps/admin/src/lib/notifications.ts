@@ -90,6 +90,6 @@ export const notifs = {
   subscribe(fn: Listener) {
     listeners.add(fn);
     fn({ notifications: [...items], soundEnabled });
-    return () => listeners.delete(fn);
+    return () => { listeners.delete(fn); };
   },
 };
