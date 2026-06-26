@@ -9,6 +9,7 @@ import type { Order } from '../lib/api';
 import { toast } from '../lib/toast';
 import { useWebSocket } from '../lib/useWebSocket';
 import TransferirMesaModal from '../components/TransferirMesaModal';
+import ElapsedTime from '../components/ElapsedTime';
 import type { NavItem } from '../App';
 
 interface SessionData {
@@ -120,7 +121,7 @@ export default function MesaDetailPage({
           <div className="flex-1">
             <h1 className="text-5xl font-bold text-foreground">Mesa {mesaNumero}</h1>
             <p className="text-muted-foreground mt-1">
-              {data ? `Detalhes e resumo de pedidos • Aberta às ${formatTime(data.openedAt)}` : 'Detalhes e resumo de pedidos'}
+              {data ? <>Detalhes e resumo de pedidos • Aberta às {formatTime(data.openedAt)}</> : 'Detalhes e resumo de pedidos'}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
@@ -237,6 +238,12 @@ export default function MesaDetailPage({
                       <p className="text-2xl font-bold text-foreground">{s.value}</p>
                     </div>
                   ))}
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-muted-foreground">Tempo aberta</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      <ElapsedTime isoDate={data.openedAt} />
+                    </p>
+                  </div>
                 </div>
 
                 {/* Total */}
@@ -266,6 +273,7 @@ export default function MesaDetailPage({
                 <p className="text-xs text-muted-foreground text-center mt-3 lg:mt-4">
                   Aberta às {formatTime(data.openedAt)}
                 </p>
+
               </Card>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { getUser } from '../lib/auth';
 import { toast } from '../lib/toast';
 import { useWebSocket } from '../lib/useWebSocket';
 import NovaMesaModal from '../components/NovaMesaModal';
+import ElapsedTime from '../components/ElapsedTime';
 import type { NavItem } from '../App';
 
 export default function MesasPage({
@@ -129,7 +130,8 @@ export default function MesasPage({
             </div>
             <div className="pt-3 border-t border-border/50">
               <p className="text-xs text-muted-foreground">
-                Aberta às {formatTime(mesa.sessao.openedAt)}{clientesUnicos > 0 ? ` • ${clientesUnicos} ${clientesUnicos === 1 ? 'cliente' : 'clientes'}` : ''}
+                Aberta às {formatTime(mesa.sessao.openedAt)} • há <ElapsedTime isoDate={mesa.sessao.openedAt} />
+                {clientesUnicos > 0 ? ` • ${clientesUnicos} ${clientesUnicos === 1 ? 'cliente' : 'clientes'}` : ''}
               </p>
             </div>
           </div>
